@@ -1,7 +1,7 @@
 import logging
 import os
 import sys
-sys.path.append('/home/ubuntu/project/v2a-mapper')
+sys.path.append('/home/ubuntu/project/v2a_mapper')
 
 from argparse import ArgumentParser
 from datetime import timedelta
@@ -25,8 +25,6 @@ torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
 
 def error_avoidance_collate(batch):
-    if batch == [None]:
-        return None
     batch = list(filter(lambda x: x is not None, batch))
     return default_collate(batch)
 
@@ -55,7 +53,7 @@ NOTE: 352800 (8*44100) is not divisible by (STFT hop size * VAE downsampling rat
 
 # per-GPU
 BATCH_SIZE = 1
-NUM_WORKERS = 0
+NUM_WORKERS = 16
 
 log = logging.getLogger()
 log.setLevel(logging.INFO)
@@ -141,8 +139,6 @@ def extract():
         log.info(f'Number of batches: {len(loader)}')
 
         for curr_iter, data in enumerate(tqdm(loader)):
-            if not data:
-                continue
             output = {
                 'id': data['id'],
                 'caption': data['caption'],
@@ -164,10 +160,8 @@ def extract():
             # caption = data['caption']
             # text_features = feature_extractor.encode_text(caption)
             # output['text_features'] = text_features.detach().cpu()
-            output_id = str(data['id'])[2:-6]
-            # torch.save(output, this_latent_dir / f'r{local_rank}_{curr_iter}.pth')
+            output_id = data['id']
             torch.save(output, this_latent_dir / f'{output_id}.pth')
-
 
         distributed.barrier()
 
@@ -215,12 +209,5 @@ def extract():
 
 
 if __name__ == '__main__':
-    # extract()
-    # distributed.destroy_process_group()
-
-    path = '/home/ubuntu/project/subdata/output/video-latents/example/'
-    videos = os.listdir(path)
-    for video in videos:
-        info = torch.load(path + video)
-        print(info['clip_features'].shape)
-        break
+    extract()
+    distributed.destroy_process_group()

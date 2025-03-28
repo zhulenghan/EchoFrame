@@ -16,7 +16,7 @@ local_rank = 0
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger()
 
-_CLIP_SIZE = 384
+_CLIP_SIZE = 224  # 384
 _CLIP_FPS = 8.0
 
 
@@ -28,7 +28,7 @@ class VGGSound(Dataset):
         *,
         csv_path: Union[str, Path] = '/ocean/projects/cis250032p/lzhu6/dataset/VGGSound/test.csv',
         sample_rate: int = 16_000,
-        duration_sec: float = 10.0,
+        duration_sec: float = 8.0,
         audio_samples: Optional[int] = None,
         normalize_audio: bool = False,
     ):
@@ -166,8 +166,10 @@ class VGGSound(Dataset):
 
 
 if __name__ == "__main__":
-    vgg_dataset = VGGSound(root="/jet/home/lzhu6/cis250032p/lzhu6/dataset/VGGSound/train_data/VGGSound_final/video",
-                           csv_path="/jet/home/lzhu6/cis250032p/lzhu6/dataset/VGGSound/test.csv")
+    vgg_dataset = VGGSound(root="/home/ubuntu/project/subdata/video",
+                           csv_path="/home/ubuntu/project/subdata/train_subset.csv")
     for data in vgg_dataset:
         print(data)
+        # if data['id'] == '1msyXyqRvpY_000000.mp4':
+        #     print(data['audio'].shape)
         break

@@ -1,0 +1,9 @@
+conda install ffmpeg
+
+pip install git+https://github.com/LAION-AI/CLAP.git
+pip install git+https://github.com/haoheliu/AudioLDM.git
+
+(in the dir of v2a-mapper/extraction)
+torchrun --nproc_per_node=1 extract_video_training_latents.py
+
+ldm.py
