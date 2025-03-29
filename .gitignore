@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 .vscode/
 .subdata/
+V2A-Mapper1/
 
 v2a-mapper/pretrain/
 # C extensions
