@@ -5,6 +5,7 @@ __pycache__/
 .vscode/
 .subdata/
 
+v2a-mapper/pretrain/
 # C extensions
 *.so
 
