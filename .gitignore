@@ -5,8 +5,11 @@ __pycache__/
 .vscode/
 .subdata/
 V2A-Mapper1/
-
+CLAP/
+Audio*/
+MMAudio/
 v2a-mapper/pretrain/
+suyfgewouihfowuyef/
 # C extensions
 *.so
 
