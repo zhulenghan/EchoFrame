@@ -24,6 +24,18 @@ from utils.dist_utils import local_rank, world_size
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
 
+import numpy as np
+import librosa
+import torch
+import laion_clap
+from extraction.vgg_sound import *
+import torch
+import torchaudio
+from transformers import AutoProcessor, AutoModel
+import soundfile as sf 
+
+
+
 def error_avoidance_collate(batch):
     if batch == [None]:
         return None
@@ -54,29 +66,43 @@ NOTE: 352800 (8*44100) is not divisible by (STFT hop size * VAE downsampling rat
 # synchformer_ckpt = './ext_weights/synchformer_state_dict.pth'
 
 # per-GPU
-BATCH_SIZE = 1
-NUM_WORKERS = 0
+BATCH_SIZE = 8
+NUM_WORKERS = 4
 
 log = logging.getLogger()
 log.setLevel(logging.INFO)
 
+# load clap
+
+from audioldm.clap.encoders import CLAPAudioEmbeddingClassifierFreev2
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+CLAP = CLAPAudioEmbeddingClassifierFreev2(
+    key='waveform',
+    pretrained_path="/home/ubuntu/project/v2a-mapper/pretrain/clap_htsat_tiny.pt",
+    sampling_rate=16000,
+    embed_mode="audio",
+    amodel="HTSAT-tiny"
+).to(device)
+
+CLAP.eval()
+
 # uncomment the train/test/val sets to extract latents for them
 data_cfg = {
-    'example': {
-        'root': '/home/ubuntu/project/subdata/video',
-        'subset_name': '/home/ubuntu/project/subdata/train_subset.csv',
+    'train': {
+        'root': '/mnt/new_volume/vgg_sound/scratch/shared/beegfs/hchen/train_data/VGGSound_final/video/',
+        'subset_name': '/mnt/new_volume/vgg_sound/train.csv',
         'normalize_audio': True,
     },
-    # 'train': {
+    # # 'train': {
     #     'root': '../data/video',
     #     'subset_name': './sets/vgg3-train.tsv',
     #     'normalize_audio': True,
     # },
-    # 'test': {
-    #     'root': '../data/video',
-    #     'subset_name': './sets/vgg3-test.tsv',
-    #     'normalize_audio': False,
-    # },
+    'test': {
+        'root': '/mnt/new_volume/vgg_sound/scratch/shared/beegfs/hchen/train_data/VGGSound_final/video/',
+        'subset_name': '/mnt/new_volume/vgg_sound/test.csv',
+        'normalize_audio': True,
+    },
     # 'val': {
     #     'root': '../data/video',
     #     'subset_name': './sets/vgg3-val.tsv',
@@ -119,7 +145,7 @@ def extract():
     parser = ArgumentParser()
     parser.add_argument('--latent_dir',
                         type=Path,
-                        default='/home/ubuntu/project/subdata/output/video-latents')
+                        default='/mnt/new_volume2/vgg_sound_emb')
     parser.add_argument('--output_dir', type=Path, default='/home/ubuntu/project/subdata/output/memmap')
     args = parser.parse_args()
 
@@ -143,7 +169,7 @@ def extract():
         for curr_iter, data in enumerate(tqdm(loader)):
             if not data:
                 continue
-            output = {
+            output_batch = {
                 'id': data['id'],
                 'caption': data['caption'],
             }
@@ -155,7 +181,12 @@ def extract():
 
             clip_video = data['clip_video'].cuda()
             clip_features = feature_extractor.encode_video_with_clip(clip_video)
-            output['clip_features'] = clip_features.detach().cpu()
+
+            clap_audio = data['audio'].cuda()
+            
+            output_batch['clap_features'] = CLAP.forward(clap_audio).detach().cpu()
+
+            output_batch['clip_features'] = clip_features.detach().cpu()
 
             # sync_video = data['sync_video'].cuda()
             # sync_features = feature_extractor.encode_video_with_sync(sync_video)
@@ -164,63 +195,84 @@ def extract():
             # caption = data['caption']
             # text_features = feature_extractor.encode_text(caption)
             # output['text_features'] = text_features.detach().cpu()
-            output_id = str(data['id'])[2:-6]
-            # torch.save(output, this_latent_dir / f'r{local_rank}_{curr_iter}.pth')
-            torch.save(output, this_latent_dir / f'{output_id}.pth')
-
+            # output_id = str(data['id'])[2:-6]
+            for i in range(len(output_batch['id'])):
+                output = {
+                    'id': output_batch['id'][i],
+                    'caption': output_batch['caption'][i],
+                    'clip_features': output_batch['clip_features'][i],
+                    'clap_features': output_batch['clap_features'][i]
+                }
+                output_id = str(output['id'])[:-4]
+                #print(f'Output id: {output_id}')
+                #print(str(output['id']))
+                torch.save(output, this_latent_dir / f'{output_id}.pth')
+                # torch.save(output, this_latent_dir / f'r{local_rank}_{curr_iter}_{i}.pth')
+           
+            #torch.save(output, this_latent_dir / f'r{local_rank}_{curr_iter}.pth')
+            # torch.save(output, this_latent_dir / f'{output_id}.pth')
+            del output
+            del data
+            del clip_video
+            del clap_audio
+            del clip_features
+            del output_batch
+            
 
         distributed.barrier()
 
-        # combine the results
-        if local_rank == 0:
-            print('Extraction done. Combining the results.')
+        #break
 
-            used_id = set()
-            list_of_ids_and_labels = []
-            output_data = {
-                # 'mean': [],
-                # 'std': [],
-                'clip_features': [],
-                # 'sync_features': [],
-                # 'text_features': [],
-            }
+        # # combine the results
+        # if local_rank == 0:
+        #     print('Extraction done. Combining the results.')
 
-            for t in tqdm(sorted(os.listdir(this_latent_dir))):
-                data = torch.load(this_latent_dir / t, weights_only=True)
-                bs = len(data['id'])
+        #     used_id = set()
+        #     list_of_ids_and_labels = []
+        #     output_data = {
+        #         # 'mean': [],
+        #         # 'std': [],
+        #         'clip_features': [],
+        #         # 'sync_features': [],
+        #         # 'text_features': [],
+        #     }
 
-                for bi in range(bs):
-                    this_id = data['id'][bi]
-                    this_caption = data['caption'][bi]
-                    if this_id in used_id:
-                        print('Duplicate id:', this_id)
-                        continue
+        #     for t in tqdm(sorted(os.listdir(this_latent_dir))):
+        #         data = torch.load(this_latent_dir / t, weights_only=True)
+        #         bs = len(data['id'])
 
-                    list_of_ids_and_labels.append({'id': this_id, 'label': this_caption})
-                    used_id.add(this_id)
-                    # output_data['mean'].append(data['mean'][bi])
-                    # output_data['std'].append(data['std'][bi])
-                    output_data['clip_features'].append(data['clip_features'][bi])
-                    # output_data['sync_features'].append(data['sync_features'][bi])
-                    # output_data['text_features'].append(data['text_features'][bi])
+        #         for bi in range(bs):
+        #             this_id = data['id'][bi]
+        #             this_caption = data['caption'][bi]
+        #             if this_id in used_id:
+        #                 print('Duplicate id:', this_id)
+        #                 continue
 
-            output_dir.mkdir(parents=True, exist_ok=True)
-            output_df = pd.DataFrame(list_of_ids_and_labels)
-            output_df.to_csv(output_dir / f'vgg-{split}.csv', sep='\t', index=False)
+        #             list_of_ids_and_labels.append({'id': this_id, 'label': this_caption})
+        #             used_id.add(this_id)
+        #             # output_data['mean'].append(data['mean'][bi])
+        #             # output_data['std'].append(data['std'][bi])
+        #             output_data['clip_features'].append(data['clip_features'][bi])
+        #             # output_data['sync_features'].append(data['sync_features'][bi])
+        #             # output_data['text_features'].append(data['text_features'][bi])
 
-            print(f'Output: {len(output_df)}')
+        #     output_dir.mkdir(parents=True, exist_ok=True)
+        #     output_df = pd.DataFrame(list_of_ids_and_labels)
+        #     output_df.to_csv(output_dir / f'vgg-{split}.csv', sep='\t', index=False)
 
-            output_data = {k: torch.stack(v) for k, v in output_data.items()}
-            td.TensorDict(output_data).memmap_(output_dir / f'vgg-{split}')
+        #     print(f'Output: {len(output_df)}')
+
+        #     output_data = {k: torch.stack(v) for k, v in output_data.items()}
+        #     td.TensorDict(output_data).memmap_(output_dir / f'vgg-{split}')
 
 
 if __name__ == '__main__':
-    # extract()
-    # distributed.destroy_process_group()
+    extract()
+    distributed.destroy_process_group()
 
-    path = '/home/ubuntu/project/subdata/output/video-latents/example/'
-    videos = os.listdir(path)
-    for video in videos:
-        info = torch.load(path + video)
-        print(info['clip_features'].shape)
-        break
+    # path = '/home/ubuntu/project/subdata/output/video-latents/example/'
+    # videos = os.listdir(path)
+    # for video in videos:
+    #     info = torch.load(path + video)
+    #     print(info['clip_features'].shape)
+    #     break

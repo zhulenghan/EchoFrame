@@ -109,8 +109,8 @@ class VGGSound(Dataset):
 
         # process audio
         sample_rate = int(reader.get_out_stream_info(1).sample_rate)
-        print(f"sample_rate: {sample_rate}")
-        print("self sample: ", self.sample_rate)
+        #print(f"sample_rate: {sample_rate}")
+        #print("self sample: ", self.sample_rate)
         audio_chunk = audio_chunk.transpose(0, 1)
         audio_chunk = audio_chunk.mean(dim=0)  # mono
         if self.normalize_audio:
@@ -153,6 +153,8 @@ class VGGSound(Dataset):
             'audio': audio_chunk,
             'clip_video': clip_chunk,
         }
+        
+        del reader
 
         return data
 

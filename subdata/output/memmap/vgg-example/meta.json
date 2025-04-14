@@ -1,1 +1,0 @@
-{"clip_features":{"device":"cpu","shape":[13,64,512],"dtype":"torch.float32","is_nested":false},"shape":[],"device":"cpu","_type":"<class 'tensordict._td.TensorDict'>"}

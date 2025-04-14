@@ -3,7 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 .vscode/
-.subdata/
+useful_cmd.txt
+subdata/
 V2A-Mapper1/
 CLAP/
 Audio*/

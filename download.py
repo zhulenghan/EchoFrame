@@ -6,10 +6,10 @@ from datasets import Dataset
 # 配置
 repo_id = "lenghanz/VGGSound"
 save_dir = "/mnt/new_volume/vgg_sound"
-data_dir = os.path.join(save_dir, "data")
+data_dir = "/mnt/new_volume/vgg_sound"
 
-print(f"Step 1: Downloading dataset to {save_dir}")
-snapshot_download(repo_id=repo_id, repo_type="dataset", local_dir=save_dir, local_dir_use_symlinks=False)
+# print(f"Step 1: Downloading dataset to {save_dir}")
+# snapshot_download(repo_id=repo_id, repo_type="dataset", local_dir=save_dir, local_dir_use_symlinks=False)
 
 print(f"Step 2: Looking for CSV files in {data_dir}")
 csv_files = [f for f in os.listdir(data_dir) if f.endswith(".csv")]
