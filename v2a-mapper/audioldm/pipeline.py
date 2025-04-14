@@ -157,8 +157,8 @@ def clap_to_audio(
     #image = Image.open(image_path) images.append(image) 用Image.open(image_path)读取图片
                 
     batch = make_batch_for_image_to_audio(clap_feat, waveform=waveform, batchsize=batchsize)
-    print("batch shape: ", batch[-1])
-    print("batch type: ", type(batch[-1]))
+    # print("batch shape: ", batch[-1])
+    # print("batch type: ", type(batch[-1]))
     latent_diffusion.latent_t_size = duration_to_latent_t_size(duration)  
 
     #print("Generate audio using image %s" % images)
