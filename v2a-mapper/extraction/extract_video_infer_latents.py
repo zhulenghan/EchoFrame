@@ -94,7 +94,7 @@ data_cfg = {
     #     'normalize_audio': True,
     # },
     "infer" :{
-        'root': '/home/ubuntu/project/v2a-mapper/train/test_inf/test_ag',
+        'root': '/home/ubuntu/project/v2a-mapper/train/test_inf/test_ag/videos_withsound/',
         'subset_name': '/home/ubuntu/project/v2a-mapper/train/scripts/output.csv',
         'normalize_audio': True,
     }
@@ -120,7 +120,10 @@ def distributed_setup():
     distributed.init_process_group(backend="nccl", timeout=timedelta(hours=1))
     log.info(f'Initialized: local_rank={local_rank}, world_size={world_size}')
     return local_rank, world_size
-
+os.environ['RANK'] = '0'
+os.environ['WORLD_SIZE'] = '1'
+os.environ['MASTER_ADDR'] = 'localhost'
+os.environ['MASTER_PORT'] = '12355'
 
 def setup_dataset(split: str):
     dataset = VGGSound(
@@ -130,6 +133,7 @@ def setup_dataset(split: str):
         duration_sec=DURATION_SEC,
         audio_samples=NUM_SAMPLES,
         normalize_audio=data_cfg[split]['normalize_audio'],
+        split = split
     )
     sampler = DistributedSampler(dataset, rank=local_rank, shuffle=False)
     loader = DataLoader(dataset,
@@ -151,7 +155,7 @@ def extract():
     parser.add_argument('--latent_dir',
                         type=Path,
                         default='/mnt/new_volume2/ai_video_emb')
-    parser.add_argument('--output_dir', type=Path, default='/home/ubuntu/project/subdata/output/memmap')
+    parser.add_argument('--output_dir', type=Path, default='/mnt/new_volume2/ai_video_emb')
     args = parser.parse_args()
 
     latent_dir = args.latent_dir

@@ -172,11 +172,11 @@ class LatentDiffusion(DDPM):
     #                 force_c_encode=True,
     #                 return_original_cond=False,
     #                 bs=None,'
-        print(f"key: {k}")
+        # print(f"key: {k}")
         x = super().get_input(batch, k)
-        print(x)
-        print(type(x))
-        print(x.shape)
+        # print(x)
+        # print(type(x))
+        # print(x.shape)
 
         if bs is not None:
             x = x[:bs]

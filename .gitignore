@@ -12,9 +12,10 @@ MMAudio/
 v2a-mapper/pretrain/
 suyfgewouihfowuyef/
 # C extensions
+**/ckpts**/
+**/wandb/
+**/test_inf/
 *.so
-v2a-mapper/train/ckpts/
-v2a-mapper/train/test_inf/
 output/
 
 # Distribution / packaging

@@ -31,7 +31,9 @@ class VGGSound(Dataset):
         duration_sec: float = 8.0,
         audio_samples: Optional[int] = None,
         normalize_audio: bool = False,
+        split: str = 'train'
     ):
+        self.split = split
         self.root = Path(root)
         self.normalize_audio = normalize_audio
         if audio_samples is None:
