@@ -181,3 +181,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+*.npy
+*.wav
+*.pkl
