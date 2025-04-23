@@ -1,0 +1,1 @@
+{"frechet_distance": 73.21730198917044, "frechet_audio_distance": 9.401831710372988, "kullback_leibler_divergence_sigmoid": -1.0, "kullback_leibler_divergence_softmax": -1.0, "lsd": NaN, "psnr": NaN, "ssim": NaN, "inception_score_mean": 2.9024885486889307, "inception_score_std": 0.4567837189968576, "kernel_inception_distance_mean": NaN, "kernel_inception_distance_std": NaN}

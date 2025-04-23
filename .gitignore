@@ -2,9 +2,21 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+.vscode/
+useful_cmd.txt
+subdata/
+V2A-Mapper1/
+CLAP/
+Audio*/
+MMAudio/
+v2a-mapper/pretrain/
+suyfgewouihfowuyef/
 # C extensions
+**/ckpts**/
+**/wandb/
+**/test_inf/
 *.so
+output/
 
 # Distribution / packaging
 .Python
@@ -169,3 +181,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+*.npy
+*.wav
+*.pkl
