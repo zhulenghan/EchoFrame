@@ -4,6 +4,7 @@ import torch
 from tqdm import tqdm
 import numpy as np
 
+
 class LargeVideoDataset(Dataset):
     def __init__(self, data_dir, subset_ratio = 0.2, transform=None):
         """
@@ -34,11 +35,15 @@ class LargeVideoDataset(Dataset):
         sample_data = torch.load(pth_path)  
         clip_feat = sample_data['clip_features']  # (64, 512)
         clap_feat = sample_data['clap_features']  # (1, 512)
+        id = sample_data['id']
+        caption = sample_data['caption']
 
         if self.transform:
             clip_feat, clap_feat = self.transform((clip_feat, clap_feat))
 
-        return clip_feat, clap_feat
+        return clip_feat, clap_feat, id, caption
+
+
 
 from functools import lru_cache
 
@@ -105,40 +110,3 @@ class InMemoryVideoDataset(Dataset):
             clip_feat, clap_feat = self.transform((clip_feat, clap_feat))
         return clip_feat, clap_feat
 
-
-
-# class InMemoryVideoDataset(Dataset):
-#     def __init__(self, data_dir, subset_ratio=0.2, transform=None):
-#         """
-#         一次性把前 subset_ratio 比例的数据全部加载到内存里。
-#         """
-#         super().__init__()
-#         # 收集所有 .pth 文件
-#         file_list = []
-#         for root, dirs, files in os.walk(data_dir):
-#             for fn in files:
-#                 if fn.endswith(".pth"):
-#                     file_list.append(os.path.join(root, fn))
-#         file_list = sorted(file_list)
-#         num_samples = int(len(file_list) * subset_ratio)
-#         self.file_paths = file_list[:num_samples]
-#         self.transform = transform
-
-#         # 一次性加载到内存
-#         self.data = []
-#         print(f"Loading {len(self.file_paths)} samples into memory...")
-#         for path in tqdm(self.file_paths, desc="Caching data"):
-#             sample = torch.load(path, map_location="cpu")
-#             # 只保留 tensor，丢掉其它 metadata
-#             clip_feat = sample["clip_features"]  # (64,512)
-#             clap_feat = sample["clap_features"]  # (1,512)
-#             self.data.append((clip_feat, clap_feat))
-
-#     def __len__(self):
-#         return len(self.data)
-
-#     def __getitem__(self, idx):
-#         clip_feat, clap_feat = self.data[idx]
-#         if self.transform:
-#             clip_feat, clap_feat = self.transform((clip_feat, clap_feat))
-#         return clip_feat, clap_feat

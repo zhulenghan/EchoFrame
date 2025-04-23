@@ -1,0 +1,22 @@
+V2AMapperBiLSTM(
+  (bilstm): LSTM(512, 256, batch_first=True, bidirectional=True)
+  (blocks): Sequential(
+    (0): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    (1): V2ABlock(
+      (linear1): Linear(in_features=512, out_features=1024, bias=True)
+      (relu): ReLU()
+      (dropout): Dropout(p=0.3, inplace=False)
+      (linear2): Linear(in_features=1024, out_features=512, bias=True)
+      (norm): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    )
+    (2): V2ABlock(
+      (linear1): Linear(in_features=512, out_features=1024, bias=True)
+      (relu): ReLU()
+      (dropout): Dropout(p=0.3, inplace=False)
+      (linear2): Linear(in_features=1024, out_features=512, bias=True)
+      (norm): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    )
+    (3): Linear(in_features=512, out_features=512, bias=True)
+    (4): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+  )
+)
