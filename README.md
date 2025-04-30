@@ -1,6 +1,6 @@
 # EchoFrame: Capturing the Sound of Moments - Video2Audio Generation
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) **Authors:** Xuanrui Chen, Zian Pan, Yiming Fu, Lenghan Zhu (Carnegie Mellon University)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) **Authors:** Zian Pan, Lenghan Zhu, Yiming Fu, Xuanrui Chen (Carnegie Mellon University)
 
 ## Abstract
 
@@ -41,8 +41,8 @@ Our approach follows a cascaded pipeline:
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
-    cd your-repo-name
+    git clone [https://github.com/zhulenghan/EchoFrame.git](https://github.com/zhulenghan/EchoFrame.git)
+    cd EchoFrame
     ```
 
 2.  **Create a virtual environment (Recommended):**
@@ -78,25 +78,13 @@ Our approach follows a cascaded pipeline:
 ### 2. Training the EchoFrame Mapper
 
 * Configure training parameters (dataset paths, model architecture, hyperparameters) potentially within `v2a-mapper/train/v2a-train.ipynb` or associated scripts (`run-*.py`).
-* Launch training:
-    ```bash
-    # Example command (adapt based on your setup)
-    python v2a-mapper/train/run-XX.py --config config_file.yaml
-    # Or run cells within the v2a-train.ipynb notebook
-    ```
+* Launch training.
 * Trained model weights will be saved (e.g., in a `checkpoints` directory).
 
 ### 3. Inference (Generating Audio from Video)
 
 * Use the main inference script `v2a-mapper/inference.py` or the notebook `v2a-mapper/train/v2a-inference.ipynb`.
 * Provide the path to a silent input video and the trained EchoFrame mapper checkpoint.
-    ```bash
-    # Example command (adapt based on your setup)
-    python v2a-mapper/inference.py \
-        --video_path path/to/your/video.mp4 \
-        --mapper_checkpoint path/to/your/mapper.pth \
-        --output_path path/to/output/audio.wav
-    ```
 * An optional Gradio demo might be available via `v2a-mapper/app.py`.
 
 ### 4. Evaluation
