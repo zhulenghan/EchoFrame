@@ -25,8 +25,8 @@ This project utilizes the **VGGSound dataset**, a large-scale collection of ~200
 
 * **Challenges:** Downloading and organizing VGGSound can be difficult due to deprecated links and its large size (~300-400 GB).
 * **Contribution:** We have curated, fixed, and organized the VGGSound dataset, including labels. We provide this organized version and pre-computed CLIP (visual) and CLAP (audio) embeddings publicly on Hugging Face to aid the research community.
-    * **Organized VGGSound Dataset:** [Link to your Hugging Face Dataset Repo] <span style="color:red;">**(Please Add Link)**</span> 
-    * **Pre-computed Embeddings:** [Link to your Hugging Face Embeddings Repo] <span style="color:red;">**(Please Add Link)**</span> 
+    * **Organized VGGSound Dataset:** [https://huggingface.co/datasets/lenghanz/VGGSound] <span style="color:red;">
+    * **Pre-computed Embeddings:** [https://huggingface.co/datasets/lenghanz/VGGSound_CLIP_CLAP_Embedding] <span style="color:red;">
 
 ## Methodology: EchoFrame Pipeline
 
